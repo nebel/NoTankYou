@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Numerics;
 using Dalamud.Interface;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -22,13 +23,13 @@ public class BannerOverlayNode : NodeBase<AtkResNode> {
 		set => SetWarning(value);
 	}
 
-	public BannerOverlayNode(uint nodeId) : base(NodeType.Res) {
+	public BannerOverlayNode(uint nodeId, Action<string> logger) : base(NodeType.Res, logger) {
 		NodeID = nodeId;
 		Width = 64.0f + 300.0f + 48.0f + 64.0f;
 		Height = 64.0f;
 		IsVisible = true;
 		
-		warningImageNode = new ImageNode {
+		warningImageNode = new ImageNode(logger) {
 			NodeID = 200000 + nodeId,
 			Position = Vector2.Zero,
 			Size = new Vector2(64.0f, 64.0f),
@@ -38,7 +39,7 @@ public class BannerOverlayNode : NodeBase<AtkResNode> {
 		warningImageNode.LoadIcon(76579);
 		warningImageNode.AttachNode(this, NodePosition.AsLastChild);
 
-		messageTextNode = new TextNode {
+		messageTextNode = new TextNode(logger) {
 			NodeID = 210000 + nodeId,
 			Position = new Vector2(64.0f, 0.0f),
 			Size = new Vector2(300.0f, 32.0f),
@@ -54,7 +55,7 @@ public class BannerOverlayNode : NodeBase<AtkResNode> {
 		
 		messageTextNode.AttachNode(this, NodePosition.AsLastChild);
 
-		playerTextNode = new TextNode {
+		playerTextNode = new(logger) {
 			NodeID = 220000 + nodeId,
 			Position = new Vector2(64.0f, 32.0f),
 			Size = new Vector2(300.0f, 32.0f),
@@ -70,7 +71,7 @@ public class BannerOverlayNode : NodeBase<AtkResNode> {
 
 		playerTextNode.AttachNode(this, NodePosition.AsLastChild);
 
-		actionIconNode = new ImageNode {
+		actionIconNode = new ImageNode(logger) {
 			NodeID = 230000 + nodeId,
 			Position = new Vector2(300.0f + 64.0f + 32.0f, 0.0f),
 			Size = new Vector2(48.0f, 48.0f),
@@ -80,7 +81,7 @@ public class BannerOverlayNode : NodeBase<AtkResNode> {
 		actionIconNode.LoadIcon(61502);
 		actionIconNode.AttachNode(this, NodePosition.AsLastChild);
 
-		actionNameNode = new TextNode {
+		actionNameNode = new TextNode(logger) {
 			NodeID = 240000 + nodeId,
 			Position = new Vector2(300.0f + 64.0f, 32.0f),
 			Size = new Vector2(64.0f + 48.0f, 48.0f),

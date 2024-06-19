@@ -37,7 +37,7 @@ public unsafe class PartyListMemberOverlay : IDisposable {
 		warningIndicators = new ImageNode[moduleNames.Length];
 
 		foreach (var moduleType in moduleNames) {
-			var warningTypeNode = new ImageNode {
+			var warningTypeNode = new ImageNode(s => Service.Log.Warning(s)) {
 				NodeID = 20000 + (uint)moduleType,
 				NodeFlags = NodeFlags.Visible,
 				Size = new Vector2(24.0f, 24.0f),
@@ -62,7 +62,7 @@ public unsafe class PartyListMemberOverlay : IDisposable {
 			warningTypeNode.AttachNode((AtkResNode*)jobIconNode, NodePosition.AfterTarget);
 		}
 		
-		imageNode = new ImageNode {
+		imageNode = new ImageNode(s => Service.Log.Warning(s)) {
 			NodeID = 10000 + containerNode->NodeId,
 			NodeFlags = NodeFlags.Visible,
 			Size = new Vector2(32.0f, 32.0f),
@@ -80,15 +80,23 @@ public unsafe class PartyListMemberOverlay : IDisposable {
 	}
 
 	public void Dispose() {
+		imageNode.XDetach();
+
+		foreach (var indicator in warningIndicators) {
+			indicator.XDetach();
+			indicator.Dispose();
+		}
+		
+		// Service.Framework.RunOnFrameworkThread(() => {
+			partyComponent->UldManager.UpdateDrawNodeList();
+		// });
+
 		imageNode.Dispose();
 
 		foreach (var indicator in warningIndicators) {
 			indicator.Dispose();
 		}
-		
-		Service.Framework.RunOnFrameworkThread(() => {
-			partyComponent->UldManager.UpdateDrawNodeList();
-		});
+
 	}
 
 	public void Update() {

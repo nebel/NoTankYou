@@ -119,21 +119,36 @@ public unsafe class PartyListController : IDisposable {
         => Config.DrawConfigUi();
 
     private void AttachToNative(AddonPartyList* addonPartyList) {
+        Service.Log.Warning($"### PartyListController Attach Outer {Environment.CurrentManagedThreadId}");
         Service.Framework.RunOnFrameworkThread(() => {
+            Service.Log.Warning($"### PartyListController Attach Inner {Environment.CurrentManagedThreadId}");
             partyMembers = new PartyListMemberOverlay[8];
 
+            // foreach (var index in Enumerable.Range(0, 8)) {
+            //     var partyMemberData = addonPartyList->PartyMembers.GetPointer(index);
+            //
+            //     var partyMemberOverlay = new PartyListMemberOverlay(partyMemberData);
+            //
+            //     partyMemberOverlay.EnableTooltip(addonPartyList);
+            //
+            //     partyMembers[index] = partyMemberOverlay;
+            // }
+            Service.Log.Warning($"### PartyListController UpdateCollisionNodeList {Environment.CurrentManagedThreadId}");
+            addonPartyList->UpdateCollisionNodeList(false);
+            Service.Log.Warning($"### PartyListController UpdateDrawNodeList {Environment.CurrentManagedThreadId}");
+            addonPartyList->UldManager.UpdateDrawNodeList();
+            Service.Log.Warning($"### PartyListController Done {Environment.CurrentManagedThreadId}");
+
+            // RATIONALE: don't try to add an event before the collision and draw are ready?
             foreach (var index in Enumerable.Range(0, 8)) {
                 var partyMemberData = addonPartyList->PartyMembers.GetPointer(index);
 
                 var partyMemberOverlay = new PartyListMemberOverlay(partyMemberData);
-                
+
                 partyMemberOverlay.EnableTooltip(addonPartyList);
-                
+
                 partyMembers[index] = partyMemberOverlay;
             }
-        
-            addonPartyList->UpdateCollisionNodeList(false);
-            addonPartyList->UldManager.UpdateDrawNodeList();
         }); 
     }
 }

@@ -51,10 +51,10 @@ public unsafe class BannerController : IDisposable {
         Service.Framework.RunOnFrameworkThread(() => {
             bannerListNode?.AttachNode(addonNamePlate->RootNode, NodePosition.AsFirstChild);
             bannerListNode?.EnableTooltip(Service.AddonEventManager, addonNamePlate);
-            
+
             addonNamePlate->UpdateCollisionNodeList(false);
             addonNamePlate->UldManager.UpdateDrawNodeList();
-        }); 
+        });
     }
 
     public void DrawConfigUi()
@@ -137,9 +137,10 @@ public unsafe class BannerController : IDisposable {
     }
     
     public void Load() {
+        // return;
         Config = BannerConfig.Load();
-        
-        bannerListNode = new ListNode<BannerOverlayNode> {
+
+        bannerListNode = new ListNode<BannerOverlayNode>(s => Service.Log.Warning(s)) {
             Size = Config.OverlaySize,
             Position = Config.WindowPosition,
             LayoutAnchor = Config.LayoutAnchor,
@@ -152,28 +153,34 @@ public unsafe class BannerController : IDisposable {
             BackgroundVisible = Config.ShowListBackground,
             BackgroundColor = Config.ListBackgroundColor,
         };
-        
+
+        Service.Log.Warning($"### BannerOverlayNode Create {Environment.CurrentManagedThreadId}");
         foreach(uint index in Enumerable.Range(0, 10)) {
-            bannerListNode.Add(new BannerOverlayNode(200_100u + index));
+            bannerListNode.Add(new BannerOverlayNode(200_100u + index, s => Service.Log.Warning(s)));
         }
-        
+
         var namePlateAddon = (AddonNamePlate*) Service.GameGui.GetAddonByName("NamePlate");
         if (namePlateAddon is not null) {
+            Service.Log.Warning($"### BannerOverlayNode AttachToNative {Environment.CurrentManagedThreadId}");
             AttachToNative(namePlateAddon);
         }
-        
+
         Service.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, "NamePlate", OnNamePlateSetup);
         Service.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "NamePlate", OnNamePlateFinalize);
     }
 
-    public void Unload() {
-        bannerListNode?.Dispose();
-        
+    public void Unload()
+    {
+        // return;
+        bannerListNode?.XDetach();
+
         var namePlateAddon = (AddonNamePlate*) Service.GameGui.GetAddonByName("NamePlate");
         if (namePlateAddon is not null) {
             namePlateAddon->UpdateCollisionNodeList(false);
             namePlateAddon->UldManager.UpdateDrawNodeList();
         }
+
+        bannerListNode?.Dispose();
     }
 
     public void Reset() {

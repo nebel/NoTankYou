@@ -12,5 +12,7 @@
   ],
   "InternalName": "NoTankYou",
   "RepoUrl": "https://github.com/MidoriKami/NoTankYou",
-  "AcceptsFeedback": false
+  "AcceptsFeedback": false,
+  "LoadSync": true,
+  "CanUnloadAsync": false
 }
