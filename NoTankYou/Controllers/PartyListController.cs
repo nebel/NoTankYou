@@ -87,6 +87,8 @@ public unsafe class PartyListController : IDisposable {
             DrawWarning(addonPartyList, 0, ModuleController.SampleWarning);
             return;
         }
+
+        if (warnings.Count == 0) return;
         
         if (Config.SoloMode) {
             var warning = warnings
