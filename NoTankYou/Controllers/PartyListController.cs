@@ -89,7 +89,7 @@ public unsafe class PartyListController : IDisposable {
         }
 
         if (warnings.Count == 0) return;
-        
+
         if (Config.SoloMode) {
             var warning = warnings
                 .Where(warning => !Config.BlacklistedModules.Contains(warning.SourceModule))
@@ -198,9 +198,9 @@ public unsafe class PartyListController : IDisposable {
     }
 
     private void ResetPartyMember(AddonPartyList* addonPartyList, int index) {
-        ref var memberComponent = ref addonPartyList->PartyMembers[index];
-
         if (isDirty[index]) {
+            ref var memberComponent = ref addonPartyList->PartyMembers[index];
+
             jobIconWarningNodes[index].IsVisible = false;
             warningTypeNodes[index].IsVisible = false;
             memberComponent.ClassJobIcon->ToggleVisibility(true);
