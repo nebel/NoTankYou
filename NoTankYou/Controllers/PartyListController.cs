@@ -101,7 +101,7 @@ public unsafe class PartyListController : IDisposable {
         }
         else {
             var agentHud = AgentHUD.Instance();
-            foreach(var index in Enumerable.Range(0, 8)) {
+            for (var index = 0; index < 8; index++) {
                 var hudPartyMember = agentHud->PartyMembers.GetPointer(index);
                 
                 var warning = warnings
