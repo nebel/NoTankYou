@@ -78,12 +78,14 @@ public unsafe class PartyListController : IDisposable {
     public void Draw(List<WarningState> warnings) {
         if (!Config.Enabled) return;
         if (!isAttached) return;
-        if (AddonPartyList is null) return;
 
-        ResetPartyMembers();
+        var addonPartyList = AddonPartyList;
+        if (addonPartyList is null) return;
+
+        ResetPartyMembers(addonPartyList);
         
         if (Config.SampleMode) {
-            DrawWarning(AgentHUD.Instance()->PartyMembers[0].Index, ModuleController.SampleWarning);
+            DrawWarning(addonPartyList, AgentHUD.Instance()->PartyMembers[0].Index, ModuleController.SampleWarning);
             return;
         }
         
@@ -93,7 +95,7 @@ public unsafe class PartyListController : IDisposable {
                 .Where(warning => warning.SourceEntityId == Service.ClientState.LocalPlayer?.EntityId)
                 .MaxBy(warning => warning.Priority);
             
-            DrawWarning(AgentHUD.Instance()->PartyMembers[0].Index , warning);
+            DrawWarning(addonPartyList, AgentHUD.Instance()->PartyMembers[0].Index , warning);
         }
         else {
             var agentHud = AgentHUD.Instance();
@@ -105,7 +107,7 @@ public unsafe class PartyListController : IDisposable {
                     .Where(warning => warning.SourceEntityId == hudPartyMember->EntityId)
                     .MaxBy(warning => warning.Priority);
                 
-                DrawWarning(hudPartyMember->Index, warning);
+                DrawWarning(addonPartyList, hudPartyMember->Index, warning);
             }
         }
     }
@@ -193,17 +195,15 @@ public unsafe class PartyListController : IDisposable {
                 System.NativeController.DetachFromAddon(warningTypeNodes[index], (AtkUnitBase*)addonPartyList);
                 warningTypeNodes[index].Dispose();
             }
-            
-            ResetPartyMembers();
+
+            if (AddonPartyList != null)
+                ResetPartyMembers(AddonPartyList);
 
             isAttached = false;
         });
     }
     
-    private void ResetPartyMembers() {
-        var addonPartyList = AddonPartyList;
-	    if (addonPartyList is null) return;
-	    
+    private void ResetPartyMembers(AddonPartyList* addonPartyList) {
         foreach (var index in Enumerable.Range(0, 8)) {
             ResetPartyMember(addonPartyList, index);
         }
@@ -222,21 +222,20 @@ public unsafe class PartyListController : IDisposable {
         }
     }
 
-    private void DrawWarning(int index, WarningState? warning) {
+    private void DrawWarning(AddonPartyList* addonPartyList, int index, WarningState? warning) {
         if (warning is null) return;
 		
 		if (System.PartyListController.Config.JobIcon) {
-			AnimateWarningIcon(index, warning);
+			AnimateWarningIcon(addonPartyList, index, warning);
 		}
 
 		if (System.PartyListController.Config.PlayerName) {
-			AnimePlayerNameColor(index);
+			AnimePlayerNameColor(addonPartyList, index);
 		}
     }
     
-    private void AnimateWarningIcon(int index, WarningState warning) {
-	    if (AddonPartyList is null) return;
-        ref var memberComponent = ref AddonPartyList->PartyMembers[index];
+    private void AnimateWarningIcon(AddonPartyList* addonPartyList, int index, WarningState warning) {
+        ref var memberComponent = ref addonPartyList->PartyMembers[index];
 
 	    if (AnimationState) {
             jobIconWarningNodes[index].IsVisible = true;
@@ -253,9 +252,8 @@ public unsafe class PartyListController : IDisposable {
         isDirty[index] = true;
     }
 
-    private void AnimePlayerNameColor(int index) {
-	    if (AddonPartyList is null) return;
-        ref var memberComponent = ref AddonPartyList->PartyMembers[index];
+    private void AnimePlayerNameColor(AddonPartyList* addonPartyList, int index) {
+        ref var memberComponent = ref addonPartyList->PartyMembers[index];
 
 	    if (AnimationState) {
             memberComponent.Name->EdgeColor = Config.OutlineColor.ToByteColor();
