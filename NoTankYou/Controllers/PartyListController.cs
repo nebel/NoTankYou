@@ -95,8 +95,9 @@ public unsafe class PartyListController : IDisposable {
             DrawWarning(0, warning);
         }
         else {
+            var agentHud = AgentHUD.Instance();
             foreach(var index in Enumerable.Range(0, 8)) {
-                var hudPartyMember = AgentHUD.Instance()->PartyMembers.GetPointer(index);
+                var hudPartyMember = agentHud->PartyMembers.GetPointer(index);
                 
                 var warning = warnings
                     .Where(warning => !Config.BlacklistedModules.Contains(warning.SourceModule))
