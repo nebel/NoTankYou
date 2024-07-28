@@ -78,6 +78,7 @@ public unsafe class PartyListController : IDisposable {
     public void Draw(List<WarningState> warnings) {
         if (!Config.Enabled) return;
         if (!isAttached) return;
+        if (AddonPartyList is null) return;
 
         ResetPartyMembers();
         
@@ -200,15 +201,16 @@ public unsafe class PartyListController : IDisposable {
     }
     
     private void ResetPartyMembers() {
-	    if (AddonPartyList is null) return;
+        var addonPartyList = AddonPartyList;
+	    if (addonPartyList is null) return;
 	    
         foreach (var index in Enumerable.Range(0, 8)) {
-            ResetPartyMember(index);
+            ResetPartyMember(addonPartyList, index);
         }
     }
 
-    private void ResetPartyMember(int index) {
-        ref var memberComponent = ref AddonPartyList->PartyMembers[index];
+    private void ResetPartyMember(AddonPartyList* addonPartyList, int index) {
+        ref var memberComponent = ref addonPartyList->PartyMembers[index];
 
         if (isDirty[index]) {
             jobIconWarningNodes[index].IsVisible = false;
@@ -221,7 +223,6 @@ public unsafe class PartyListController : IDisposable {
     }
 
     private void DrawWarning(int index, WarningState? warning) {
-	    if (AddonPartyList is null) return;
         if (warning is null) return;
 		
 		if (System.PartyListController.Config.JobIcon) {

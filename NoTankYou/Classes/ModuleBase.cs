@@ -82,9 +82,12 @@ public abstract unsafe class ModuleBase<T> : ModuleBase, IDisposable where T : M
         ActiveWarningStates.Clear();
 
         if (!Config.Enabled) return;
-        if (NameplateAddon is null) return;
-        if (!NameplateAddon->IsReady) return;
-        if (!NameplateAddon->IsVisible) return;
+
+        var nameplateAddon = NameplateAddon;
+        if (nameplateAddon is null) return;
+        if (!nameplateAddon->IsReady) return;
+        if (!nameplateAddon->IsVisible) return;
+
         if (Service.ClientState.IsPvPExcludingDen) return;
         if (System.BlacklistController.IsZoneBlacklisted(Service.ClientState.TerritoryType)) return;
         if (System.SystemConfig.WaitUntilDutyStart && Service.Condition.IsBoundByDuty() && !Service.DutyState.IsDutyStarted) return;
