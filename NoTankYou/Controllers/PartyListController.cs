@@ -88,6 +88,8 @@ public unsafe class PartyListController : IDisposable {
             DrawWarning(addonPartyList, AgentHUD.Instance()->PartyMembers[0].Index, ModuleController.SampleWarning);
             return;
         }
+
+        if (warnings.Count == 0) return;
         
         if (Config.SoloMode) {
             var warning = warnings
